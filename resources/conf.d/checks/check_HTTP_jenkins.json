@@ -1,0 +1,14 @@
+{
+  "checks": {
+    "check_HTTP_jenkins": {
+      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-http.rb -I 127.0.0.1 -H 127.0.0.1 -p 8080 -e 200,404,302",
+      "handlers": [
+        "default"
+      ],
+      "subscribers": [
+        "jenkins"
+      ],
+      "interval": 60
+    }
+  }
+}

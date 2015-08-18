@@ -1,0 +1,8 @@
+{
+  "logstash": {
+    "server": "TOKEN_LOGSTASH_SERVER",
+    "port": "TOKEN_LOGSTASH_PORT",
+    "type": "sensu",
+    "output": "udp"
+  }
+}

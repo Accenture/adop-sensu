@@ -1,0 +1,14 @@
+{
+  "checks": {
+    "check_basic_disks": {
+      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-disk.rb -d -w 90 -c 95 -x nfs -i /boot -i /dev/shm",
+      "handlers": [
+        "default"
+      ],
+      "subscribers": [
+        "basic"
+      ],
+      "interval": 60
+    }
+  }
+}

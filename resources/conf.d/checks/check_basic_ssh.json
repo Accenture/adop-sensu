@@ -1,0 +1,14 @@
+{
+  "checks": {
+    "check_basic_ssh": {
+      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-banner.rb -p 22 127.0.0.1",
+      "handlers": [
+        "default"
+      ],
+      "subscribers": [
+        "basic"
+      ],
+      "interval": 60
+    }
+  }
+}
