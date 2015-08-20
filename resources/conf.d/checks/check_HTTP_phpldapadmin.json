@@ -1,0 +1,14 @@
+{
+  "checks": {
+    "check_HTTP_phpldapadmin": {
+      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-http.rb -u https://127.0.0.1/index.php -k true",
+      "handlers": [
+        "default"
+      ],
+      "subscribers": [
+        "ldap"
+      ],
+      "interval": 60
+    }
+  }
+}

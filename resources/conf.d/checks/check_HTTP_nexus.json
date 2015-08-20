@@ -1,0 +1,14 @@
+{
+  "checks": {
+    "check_HTTP_nexus": {
+      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-http.rb -u http://127.0.0.1:8081/nexus/#welcome",
+      "handlers": [
+        "default"
+      ],
+      "subscribers": [
+        "nexus"
+      ],
+      "interval": 60
+    }
+  }
+}

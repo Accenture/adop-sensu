@@ -1,7 +1,7 @@
 {
   "checks": {
     "check_HTTP_jenkins": {
-      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-http.rb -I 127.0.0.1 -H 127.0.0.1 -p 8080 -e 200,404,302",
+      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-http.rb -u http://127.0.0.1:8080/$JENKINS_PREFIX",
       "handlers": [
         "default"
       ],

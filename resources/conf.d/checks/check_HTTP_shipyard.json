@@ -1,0 +1,14 @@
+{
+  "checks": {
+    "check_HTTP_shipyard": {
+      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-http.rb -u http://127.0.0.1:8080",
+      "handlers": [
+        "default"
+      ],
+      "subscribers": [
+        "shipyard"
+      ],
+      "interval": 60
+    }
+  }
+}

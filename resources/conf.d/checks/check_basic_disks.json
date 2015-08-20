@@ -1,7 +1,7 @@
 {
   "checks": {
     "check_basic_disks": {
-      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-disk.rb -d -w 90 -c 95 -x nfs -i /boot -i /dev/shm",
+      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-disk.rb -d -w 75 -c 90 -x nfs -i /boot -i /dev/shm",
       "handlers": [
         "default"
       ],

@@ -1,0 +1,14 @@
+{
+  "checks": {
+    "check_HTTP_sonarqube": {
+      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-http.rb -u http://127.0.0.1:9000/sonar/sessions/new",
+      "handlers": [
+        "default"
+      ],
+      "subscribers": [
+        "sonarqube"
+      ],
+      "interval": 60
+    }
+  }
+}
