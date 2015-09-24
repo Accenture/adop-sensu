@@ -1,0 +1,13 @@
+{
+  "handlers": {
+    "slack": {
+      "type": "pipe",
+      "command": "/etc/sensu/handlers/slack.rb"
+     }
+  },
+  "slack": {
+    "webhook_url": "https://hooks.slack.com/services/PUT/YOUR/SECRET/HERE",
+    "channel": "#sensu",
+    "bot_name": "sensu"
+  }
+}

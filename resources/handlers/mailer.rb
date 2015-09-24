@@ -1,31 +1,20 @@
 #!/usr/bin/env ruby
 #
-# Sensu Handler: mailer
+# Sensu Handler: mailer-ses
 #
 # This handler formats alerts as mails and sends them off to a pre-defined recipient.
-#
+# Copyright 2013 github.com/foomatty
 # Copyright 2012 Pal-Kristian Hamre (https://github.com/pkhamre | http://twitter.com/pkhamre)
+#
+# Requires aws-ses gem 'gem install aws-ses'
 #
 # Released under the same terms as Sensu (the MIT license); see LICENSE
 # for details.
 
 require 'rubygems' if RUBY_VERSION < '1.9.0'
 require 'sensu-handler'
-gem 'mail', '~> 2.5.4'
-require 'mail'
+require 'aws/ses'
 require 'timeout'
-
-# patch to fix Exim delivery_method: https://github.com/mikel/mail/pull/546
-module ::Mail
-  class Exim < Sendmail
-    def self.call(path, arguments, destinations, encoded_message)
-      popen "#{path} #{arguments}" do |io|
-        io.puts encoded_message.to_lf
-        io.flush
-      end
-    end
-  end
-end
 
 class Mailer < Sensu::Handler
   def short_name
@@ -33,95 +22,49 @@ class Mailer < Sensu::Handler
   end
 
   def action_to_string
-   @event['action'].eql?('resolve') ? "RESOLVED" : "ALERT"
-  end
-
-  def status_to_string
-    case @event['check']['status']
-    when 0
-      'OK'
-    when 1
-      'WARNING'
-    when 2
-      'CRITICAL'
-    else
-      'UNKNOWN'
-    end
-  end
-
-  def build_mail_to_list
-    mail_to = settings['mailer']['mail_to']
-    if settings['mailer'].has_key?('subscriptions')
-      @event['check']['subscribers'].each do |sub|
-        if settings['mailer']['subscriptions'].has_key?(sub)
-          mail_to << ", #{settings['mailer']['subscriptions'][sub]['mail_to']}"
-        end
-      end
-    end
-    mail_to
+    @event['action'].eql?('resolve') ? 'RESOLVED' : 'ALERT'
   end
 
   def handle
-    admin_gui = settings['mailer']['admin_gui'] || 'http://localhost:8080/'
-    mail_to = build_mail_to_list
-    mail_from =  settings['mailer']['mail_from']
+    params = {
+      mail_to: settings['mailer-ses']['mail_to'],
+      mail_from: settings['mailer-ses']['mail_from'],
+      aws_access_key: settings['mailer-ses']['aws_access_key'],
+      aws_secret_key: settings['mailer-ses']['aws_secret_key'],
+      aws_ses_endpoint: settings['mailer-ses']['aws_ses_endpoint']
+    }
 
-    delivery_method = settings['mailer']['delivery_method'] || 'smtp'
-    smtp_address = settings['mailer']['smtp_address'] || 'localhost'
-    smtp_port = settings['mailer']['smtp_port'] || '25'
-    smtp_domain = settings['mailer']['smtp_domain'] || 'localhost.localdomain'
-
-    smtp_username = settings['mailer']['smtp_username'] || nil
-    smtp_password = settings['mailer']['smtp_password'] || nil
-    smtp_authentication = settings['mailer']['smtp_authentication'] || :plain
-    smtp_enable_starttls_auto = settings['mailer']['smtp_enable_starttls_auto'] == "false" ? false : true
-
-    playbook = "Playbook:  #{@event['check']['playbook']}" if @event['check']['playbook']
-    body = <<-BODY.gsub(/^\s+/, '')
+    body = <<-BODY.gsub(/^ {14}/, '')
             #{@event['check']['output']}
-            Admin GUI: #{admin_gui}
             Host: #{@event['client']['name']}
             Timestamp: #{Time.at(@event['check']['issued'])}
             Address:  #{@event['client']['address']}
             Check Name:  #{@event['check']['name']}
             Command:  #{@event['check']['command']}
-            Status:  #{status_to_string}
+            Status:  #{@event['check']['status']}
             Occurrences:  #{@event['occurrences']}
-            #{playbook}
           BODY
-    subject = "#{action_to_string} - #{short_name}: #{status_to_string}"
+    subject = "#{action_to_string} - #{short_name}: #{@event['check']['notification']}"
 
-    Mail.defaults do
-      delivery_options = {
-        :address    => smtp_address,
-        :port       => smtp_port,
-        :domain     => smtp_domain,
-        :openssl_verify_mode => 'none',
-        :enable_starttls_auto => smtp_enable_starttls_auto
-      }
-
-      unless smtp_username.nil?
-        auth_options = {
-          :user_name        => smtp_username,
-          :password         => smtp_password,
-          :authentication   => smtp_authentication
-        }
-        delivery_options.merge! auth_options
-      end
-
-      delivery_method delivery_method.intern, delivery_options
-    end
+    ses = AWS::SES::Base.new(
+      access_key_id: params[:aws_access_key],
+      secret_access_key: params[:aws_secret_key],
+      server: params[:aws_ses_endpoint]
+    )
 
     begin
       timeout 10 do
-        Mail.deliver do
-          to      mail_to
-          from    mail_from
-          subject subject
-          body    body
-        end
+       puts "to is #{params[:mail_to]}"
+       puts subject
+       puts body
+        ses.send_email(
+          to: params[:mail_to],
+          source: params[:mail_from],
+          subject: subject,
+          text_body: body
+        )
 
-        puts 'mail -- sent alert for ' + short_name + ' to ' + mail_to.to_s
+        puts 'mail -- sent alert for ' + short_name + ' to ' + params[:mail_to]
       end
     rescue Timeout::Error
       puts 'mail -- timed out while attempting to ' + @event['action'] + ' an incident -- ' + short_name

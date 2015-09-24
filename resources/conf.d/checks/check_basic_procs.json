@@ -3,7 +3,7 @@
     "check_basic_procs": {
       "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-procs.rb",
       "handlers": [
-        "default"
+        "slack", "mailer"
       ],
       "subscribers": [
         "basic"

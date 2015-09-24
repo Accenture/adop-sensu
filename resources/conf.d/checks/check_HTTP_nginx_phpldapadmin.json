@@ -1,0 +1,14 @@
+{
+  "checks": {
+    "check_HTTP_nginx_phpldapadmin": {
+      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-http.rb -u https://ldap.deveng.io -k true",
+      "handlers": [
+        "slack", "mailer"
+      ],
+      "subscribers": [
+        "nginx"
+      ],
+      "interval": 60
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "checks": {
+    "check_HTTP_nginx_gitlab": {
+      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-http.rb -u https://gitlab.deveng.io/users/sign_in -k true",
+      "handlers": [
+        "slack", "mailer"
+      ],
+      "subscribers": [
+        "nginx"
+      ],
+      "interval": 60
+    }
+  }
+}

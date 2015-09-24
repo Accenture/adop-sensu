@@ -3,7 +3,7 @@
     "check_TCP_openvpn": {
       "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-banner.rb -p 443 -H 127.0.0.1",
       "handlers": [
-        "default"
+        "slack", "mailer"
       ],
       "subscribers": [
         "openvpn"

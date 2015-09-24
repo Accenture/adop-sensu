@@ -1,0 +1,15 @@
+{
+  "handlers": {
+    "mailer": {
+      "type": "pipe",
+      "command": "/etc/sensu/handlers/mailer.rb"
+    }
+  },
+  "mailer-ses": {
+   "mail_from": "TOKEN_MAILER_FROM",
+   "mail_to": "TOKEN_MAILER_TO_CSV",
+   "aws_access_key": "TOKEN_MAILER_SMTP_USERNAME",
+   "aws_secret_key": "TOKEN_MAILER_SMTP_PASSWORD",
+   "aws_ses_endpoint": "TOKEN_MAILER_SMTP_SERVER"
+  }
+}

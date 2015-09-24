@@ -1,0 +1,14 @@
+{
+  "checks": {
+    "check_HTTP_nginx_registry": {
+      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-http.rb -u https://docker.deveng.io/v2/ -k true",
+      "handlers": [
+        "slack", "mailer"
+      ],
+      "subscribers": [
+        "nginx"
+      ],
+      "interval": 60
+    }
+  }
+}

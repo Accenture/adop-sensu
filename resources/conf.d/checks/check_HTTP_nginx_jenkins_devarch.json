@@ -1,0 +1,14 @@
+{
+  "checks": {
+    "check_HTTP_nginx_jenkins_devarch": {
+      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-http.rb -u https://deveng.io/devarch-jenkins/login -k true",
+      "handlers": [
+        "slack", "mailer"
+      ],
+      "subscribers": [
+        "nginx"
+      ],
+      "interval": 60
+    }
+  }
+}

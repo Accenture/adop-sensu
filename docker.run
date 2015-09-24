@@ -35,6 +35,7 @@ yum install -y unzip
 curl ${S3_URL_SENSU_DIR}/${SENSU_SERVER_CONFIG_PAYLOAD} > ${SENSU_DIR_DATA}/${SENSU_SERVER_CONFIG_PAYLOAD}
 unzip ${SENSU_DIR_DATA}/${SENSU_SERVER_CONFIG_PAYLOAD} -d ${SENSU_DIR_DATA}
 rm -f ${SENSU_DIR_DATA}/${SENSU_SERVER_CONFIG_PAYLOAD}
+chmod +x ${SENSU_DIR_DATA}/handlers/*.rb
 
 # Replace tokens
 for key in ${!tokens[@]}; do
