@@ -1,15 +1,15 @@
 #Supported tags and respective Dockerfile links
 
-- [`0.0.1`, `0.0.1` (*0.0.1/Dockerfile*)](https://github.com/Accenture/adop-sensu/blob/master/Dockerfile.md)
+- [`0.1.0`, `0.1.0` (*0.1.0/Dockerfile*)](https://github.com/Accenture/adop-sensu/blob/master/Dockerfile.md)
 
-# What is docker-sensu?
+# What is adop-sensu?
 
-docker-sensu is a wrapper for the hiroakis/docker-sensu-server image. It has primarily been built to perform extended configuration.
+adop-sensu is a wrapper for the hiroakis/docker-sensu-server image. It has primarily been built to perform extended configuration.
 Sensu is an infrastructure and application monitoring and telemetry solution. Sensu provides a framework for monitoring infrastructure, service & application health, and business KPIs.
 
 # How to use this image
 
-The easiest way to run the docker-sensu image is as follows, where VERSION is the release version of the Docker container.
+The easiest way to run the adop-sensu image is as follows, where VERSION is the release version of the Docker container.
 
       docker run --name <your-container-name> -d -p 22:22 -p 3000:3000 adop/sensu:VERSION
 
