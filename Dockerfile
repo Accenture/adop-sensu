@@ -1,4 +1,4 @@
-FROM hiroakis/docker-sensu-server
+FROM sstarcher/sensu 
 
 # Enable Embedded Ruby
 RUN sed -i -r 's/EMBEDDED_RUBY=false/EMBEDDED_RUBY=true/' /etc/default/sensu
@@ -7,5 +7,7 @@ RUN sed -i -r 's/EMBEDDED_RUBY=false/EMBEDDED_RUBY=true/' /etc/default/sensu
 RUN /opt/sensu/embedded/bin/gem install mail --version 2.5.4
 RUN /opt/sensu/embedded/bin/gem install aws-ses
 
-# Bake checks in
+# Bake config & checks in
 COPY resources/conf.d/* /etc/sensu/conf.d/
+COPY resources/check.d/ /etc/sensu/check.d/
+COPY resources/handlers/* /etc/sensu/handlers/
