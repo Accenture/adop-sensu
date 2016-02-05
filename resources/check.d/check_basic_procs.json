@@ -1,9 +1,9 @@
 {
   "checks": {
     "check_basic_procs": {
-      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-procs.rb",
+      "command": "${PLUGINS_DIR}/basic/check-procs.rb",
       "handlers": [
-        "slack", "mailer"
+        "mailer"
       ],
       "subscribers": [
         "basic"

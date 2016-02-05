@@ -11,3 +11,4 @@ RUN /opt/sensu/embedded/bin/gem install aws-ses
 COPY resources/conf.d/* /etc/sensu/conf.d/
 COPY resources/check.d/ /etc/sensu/check.d/
 COPY resources/handlers/* /etc/sensu/handlers/
+COPY resources/plugins /etc/sensu/plugins/

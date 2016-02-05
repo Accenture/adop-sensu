@@ -1,0 +1,14 @@
+{
+  "checks": {
+    "check_HTTP_kibana": {
+      "command": "${PLUGINS_DIR}/basic/check-http.rb -u http://kibana:5601/app/kibana",
+      "handlers": [
+        "mailer"
+      ],
+      "subscribers": [
+        "kibana"
+      ],
+      "interval": 60
+    }
+  }
+}

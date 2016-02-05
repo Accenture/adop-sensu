@@ -1,9 +1,9 @@
 {
   "checks": {
     "check_HTTP_jenkins": {
-      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-http.rb -u http://127.0.0.1:8080/$JENKINS_PREFIX/login",
+      "command": "${PLUGINS_DIR}/basic/check-http.rb -u http://jenkins:8080/$JENKINS_PREFIX/login",
       "handlers": [
-        "slack", "mailer"
+        "mailer"
       ],
       "subscribers": [
         "jenkins"

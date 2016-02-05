@@ -1,9 +1,9 @@
 {
   "checks": {
     "check_basic_ram": {
-      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-ram.rb -w 20 -c 10",
+      "command": "${PLUGINS_DIR}/basic/check-ram.rb -w 20 -c 10",
       "handlers": [
-        "slack", "mailer"
+        "mailer"
       ],
       "subscribers": [
         "basic"

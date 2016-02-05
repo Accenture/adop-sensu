@@ -1,9 +1,9 @@
 {
   "checks": {
     "check_HTTP_uchiwa": {
-      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-http.rb -u http://127.0.0.1:3000",
+      "command": "${PLUGINS_DIR}/basic/check-http.rb -u http://sensu-uchiwa:3000",
       "handlers": [
-        "slack", "mailer"
+        "mailer"
       ],
       "subscribers": [
         "sensu"

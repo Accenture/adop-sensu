@@ -1,9 +1,9 @@
 {
   "checks": {
     "check_HTTP_sonarqube": {
-      "command": "TOKEN_SENSU_CLIENT_DIR/plugins/basic/check-http.rb -u http://127.0.0.1:9000/sonar/sessions/new",
+      "command": "${PLUGINS_DIR}/basic/check-http.rb -u http://sonar:9000/sonar/sessions/new",
       "handlers": [
-        "slack", "mailer"
+        "mailer"
       ],
       "subscribers": [
         "sonarqube"
