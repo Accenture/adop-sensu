@@ -1,9 +1,9 @@
-# hiroakis/docker-sensu-server, NOTICES AND INFORMATION BEGIN HERE
+# https://github.com/sstarcher/docker-sensu, NOTICES AND INFORMATION BEGIN HERE
 
 MIT
 
 ## Source
-[https://hub.docker.com/r/hiroakis/docker-sensu-server/](https://hub.docker.com/r/hiroakis/docker-sensu-server/)
+[https://github.com/sstarcher/docker-sensu/blob/master/LICENSE](https://github.com/sstarcher/docker-sensu/blob/master/LICENSE)
 
 # mail, NOTICES AND INFORMATION BEGIN HERE
 
