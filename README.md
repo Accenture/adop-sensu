@@ -14,7 +14,7 @@ The easiest way to run the adop-sensu image is as follows, where VERSION is the 
       docker run --name <your-container-name> -d -p 22:22 -p 3000:3000 adop/sensu:VERSION
 
 # License
-Please view [licence information](LICENCE.md) for the software contained on this image.
+Please view [licence information](https://github.com/Accenture/adop-sensu/blob/master/LICENSE.md) and [licences information](https://github.com/Accenture/adop-sensu/blob/master/LICENSES.md)  for the software contained on this image.
 
 # Supported Docker versions
 
