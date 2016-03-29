@@ -1,6 +1,6 @@
 #Supported tags and respective Dockerfile links
 
-- [`0.1.0`, `0.1.0` (*0.1.0/Dockerfile*)](https://github.com/Accenture/adop-sensu/blob/master/Dockerfile)
+- [`0.1.0`, `0.1.0` (*0.1.0/Dockerfile*)](Dockerfile)
 
 # What is adop-sensu?
 
@@ -14,7 +14,7 @@ The easiest way to run the adop-sensu image is as follows, where VERSION is the 
       docker run --name <your-container-name> -d -p 22:22 -p 3000:3000 adop/sensu:VERSION
 
 # License
-Please view [licence information](LICENCE.md) for the software contained on this image.
+Please view [licence information](LICENSE.md) and [licences information](LICENSES.md)  for the software contained on this image.
 
 # Supported Docker versions
 
