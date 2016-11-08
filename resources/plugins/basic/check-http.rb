@@ -1,4 +1,4 @@
-#! /usr/bin/env ruby
+#!/usr/bin/env ruby
 #
 #   check-http
 #
@@ -14,10 +14,19 @@
 #
 # DEPENDENCIES:
 #   gem: sensu-plugin
-#   gem: net
 #
 # USAGE:
-#   #YELLOW
+#   Basic HTTP check - expect a 200 response
+#   check-http.rb -u http://my.site.com
+#
+#   Pattern check - expect a 200 response and the string 'OK' in the body
+#   check-http.rb -u http://my.site.com/health -q 'OK'
+#
+#   Check response code - expect a 301 response
+#   check-http.rb -u https://my.site.com/redirect --response-code 301 -r
+#
+#   Use a proxy to check a URL
+#   check-http.rb -u https://www.google.com --proxy-url http://my.proxy.com:3128
 #
 # NOTES:
 #
@@ -34,7 +43,10 @@ require 'sensu-plugin/check/cli'
 require 'net/http'
 require 'net/https'
 
-class CheckHTTP < Sensu::Plugin::Check::CLI
+#
+# Check HTTP
+#
+class CheckHttp < Sensu::Plugin::Check::CLI
   option :ua,
          short: '-x USER-AGENT',
          long: '--user-agent USER-AGENT',
@@ -55,18 +67,29 @@ class CheckHTTP < Sensu::Plugin::Check::CLI
          short: '-P PORT',
          long: '--port PORT',
          proc: proc(&:to_i),
-         description: 'Select another port',
-         default: 80
+         description: 'Select another port'
 
   option :request_uri,
          short: '-p PATH',
          long: '--request-uri PATH',
          description: 'Specify a uri path'
 
+  option :method,
+         short: '-m GET|POST',
+         long: '--method GET|POST',
+         description: 'Specify a GET or POST operation; defaults to GET',
+         in: %w(GET POST),
+         default: 'GET'
+
   option :header,
          short: '-H HEADER',
          long: '--header HEADER',
-         description: 'Headers you want to send in the format of header1:value1,header2:value2'
+         description: 'Send one or more comma-separated headers with the request'
+
+  option :body,
+         short: '-b BODY',
+         long: '--body BODY',
+         description: 'Send a body string with the request'
 
   option :ssl,
          short: '-s',
@@ -109,7 +132,12 @@ class CheckHTTP < Sensu::Plugin::Check::CLI
   option :pattern,
          short: '-q PAT',
          long: '--query PAT',
-         description: 'Query for a specific pattern'
+         description: 'Query for a specific pattern that must exist'
+
+  option :negpattern,
+         short: '-n PAT',
+         long: '--negquery PAT',
+         description: 'Query for a specific pattern that must be absent'
 
   option :timeout,
          short: '-t SECS',
@@ -132,9 +160,9 @@ class CheckHTTP < Sensu::Plugin::Check::CLI
   option :whole_response,
          short: '-w',
          long: '--whole-response',
-         description: 'Print whole output when check fails',
          boolean: true,
-         default: false
+         default: false,
+         description: 'Print whole output when check fails'
 
   option :response_bytes,
          short: '-b BYTES',
@@ -171,14 +199,14 @@ class CheckHTTP < Sensu::Plugin::Check::CLI
       config[:ssl] = uri.scheme == 'https'
     else
       # #YELLOW
-      unless config[:host] && config[:request_uri] # rubocop:disable IfUnlessModifier
+      unless config[:host] && config[:request_uri]
         unknown 'No URL specified'
       end
       config[:port] ||= config[:ssl] ? 443 : 80
     end
 
     begin
-      timeout(config[:timeout]) do
+      Timeout.timeout(config[:timeout]) do
         acquire_resource
       end
     rescue Timeout::Error
@@ -195,10 +223,18 @@ class CheckHTTP < Sensu::Plugin::Check::CLI
       http = Net::HTTP.new(config[:host], config[:port], nil, nil)
     elsif config[:proxy_url]
       proxy_uri = URI.parse(config[:proxy_url])
+      if proxy_uri.host.nil?
+        unknown 'Invalid proxy url specified'
+      end
       http = Net::HTTP.new(config[:host], config[:port], proxy_uri.host, proxy_uri.port)
     else
       http = Net::HTTP.new(config[:host], config[:port])
     end
+    http.read_timeout = config[:timeout]
+    http.open_timeout = config[:timeout]
+    http.ssl_timeout = config[:timeout]
+    http.continue_timeout = config[:timeout]
+    http.keep_alive_timeout = config[:timeout]
 
     warn_cert_expire = nil
     if config[:ssl]
@@ -214,36 +250,45 @@ class CheckHTTP < Sensu::Plugin::Check::CLI
       unless config[:expiry].nil?
         expire_warn_date = Time.now + (config[:expiry] * 60 * 60 * 24)
         # We can't raise inside the callback, have to check when we finish.
-        http.verify_callback = proc do |_preverify_ok, ssl_context|
+        http.verify_callback = proc do |preverify_ok, ssl_context|
           if ssl_context.current_cert.not_after <= expire_warn_date
             warn_cert_expire = ssl_context.current_cert.not_after
           end
+
+          preverify_ok
         end
       end
     end
 
-    req = Net::HTTP::Get.new(config[:request_uri], 'User-Agent' => config[:ua])
+    req = case config[:method]
+          when 'GET'
+            Net::HTTP::Get.new(config[:request_uri], 'User-Agent' => config[:ua])
+          when 'POST'
+            Net::HTTP::Post.new(config[:request_uri], 'User-Agent' => config[:ua])
+          end
 
-    if !config[:user].nil? && !config[:password].nil?
+    unless config[:user].nil? && config[:password].nil?
       req.basic_auth config[:user], config[:password]
     end
     if config[:header]
       config[:header].split(',').each do |header|
         h, v = header.split(':', 2)
-        req[h] = v.strip
+        req[h.strip] = v.strip
       end
     end
+    req.body = config[:body] if config[:body]
+
     res = http.request(req)
 
-    if config[:whole_response]
-      body = "\n" + res.body
-    else
-      if config[:response_bytes]
-        body = "\n" + res.body[0..config[:response_bytes]]
-      else
-        body = ''
-      end
-    end
+    body = if config[:whole_response]
+             "\n" + res.body
+           else
+             body = if config[:response_bytes] # rubocop:disable Lint/UselessAssignment
+                      "\n" + res.body[0..config[:response_bytes]]
+                    else
+                      ''
+                    end
+           end
 
     if config[:require_bytes] && res.body.length != config[:require_bytes]
       critical "Response was #{res.body.length} bytes instead of #{config[:require_bytes]}" + body
@@ -255,6 +300,10 @@ class CheckHTTP < Sensu::Plugin::Check::CLI
 
     size = res.body.nil? ? '0' : res.body.size
 
+    handle_response(res, size, body)
+  end
+
+  def handle_response(res, size, body)
     case res.code
     when /^2/
       if config[:redirectto]
@@ -264,6 +313,12 @@ class CheckHTTP < Sensu::Plugin::Check::CLI
           ok "#{res.code}, found /#{config[:pattern]}/ in #{size} bytes" + body
         else
           critical "#{res.code}, did not find /#{config[:pattern]}/ in #{size} bytes: #{res.body[0...200]}..."
+        end
+      elsif config[:negpattern]
+        if res.body =~ /#{config[:negpattern]}/
+          critical "#{res.code}, found /#{config[:negpattern]}/ in #{size} bytes: #{res.body[0...200]}..."
+        else
+          ok "#{res.code}, did not find /#{config[:negpattern]}/ in #{size} bytes" + body
         end
       else
         ok("#{res.code}, #{size} bytes" + body) unless config[:response_code]
@@ -288,10 +343,9 @@ class CheckHTTP < Sensu::Plugin::Check::CLI
       critical(res.code + body) unless config[:response_code]
     else
       warning(res.code + body) unless config[:response_code]
-  end
+    end
 
-    # #YELLOW
-    if config[:response_code] # rubocop:disable GuardClause
+    if config[:response_code]
       if config[:response_code] == res.code
         ok "#{res.code}, #{size} bytes" + body
       else
