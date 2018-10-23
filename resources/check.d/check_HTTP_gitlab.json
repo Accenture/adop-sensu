@@ -1,0 +1,15 @@
+{
+    "checks": {
+      "check_HTTP_gitlab": {
+        "command": "${PLUGINS_DIR}/basic/check-http.rb -u http://gitlab:80/gitlab/-/liveness",
+        "handlers": [
+          "mailer"
+        ],
+        "subscribers": [
+          "gitlab"
+        ],
+        "interval": 60
+      }
+    }
+  }
+  
